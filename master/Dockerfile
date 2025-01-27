@@ -2,6 +2,7 @@ FROM ubuntu:24.04
 
 # Instala pacotes necessários, incluindo o SSH
 RUN apt-get update && apt-get install -y openjdk-17-jdk wget ssh iputils-ping telnet net-tools vim && \
+    openssh-server && \
     wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz && \
     tar -xzf hadoop-3.3.6.tar.gz -C /usr/local && \
     mv /usr/local/hadoop-3.3.6 /usr/local/hadoop && \
