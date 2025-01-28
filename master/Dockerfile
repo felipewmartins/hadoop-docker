@@ -1,12 +1,15 @@
 FROM ubuntu:24.04
 
 # Instala pacotes necessários, incluindo o SSH
-RUN apt-get update && apt-get install -y openjdk-17-jdk wget ssh iputils-ping telnet net-tools vim && \
-    openssh-server && \
+RUN apt-get update && apt-get install -y openjdk-17-jdk wget ssh iputils-ping telnet net-tools vim openssh-server && \
     wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz && \
     tar -xzf hadoop-3.3.6.tar.gz -C /usr/local && \
     mv /usr/local/hadoop-3.3.6 /usr/local/hadoop && \
     rm hadoop-3.3.6.tar.gz
+
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "AllowTcpForwarding yes" >> /etc/ssh/sshd_config
 
 # Cria o usuário não root para o Hadoop
 RUN useradd -m -s /bin/bash hadoop
@@ -32,6 +35,11 @@ RUN mkdir -p /hadoop_data && \
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 ENV HADOOP_HOME=/usr/local/hadoop
 ENV PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+
+# Configurar variáveis de ambiente para o usuário hadoop
+RUN echo "export JAVA_HOME=$JAVA_HOME" >> /home/hadoop/.bashrc && \
+    echo "export HADOOP_HOME=$HADOOP_HOME" >> /home/hadoop/.bashrc && \
+    echo "export PATH=$PATH" >> /home/hadoop/.bashrc
 
 RUN sed -i "/export JAVA_HOME/c\export JAVA_HOME=$JAVA_HOME" $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
